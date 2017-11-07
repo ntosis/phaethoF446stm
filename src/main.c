@@ -34,12 +34,14 @@
 #include "hardware_init.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
-
+#include "FRAMEWIN.h"
+#include "GUI.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+CRC_HandleTypeDef hcrc;
 
 osThreadId defaultTaskHandle;
 osThreadId blinkTaskHandle;
@@ -57,6 +59,7 @@ uint8_t testcnt=0;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void Error_Handler(void);
+static void MX_CRC_Init(void);
 void StartDefaultTask(void const * argument);
 
 void Task_10ms(void const *argument);
@@ -86,15 +89,19 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* Configure the system clock */
+   /* Configure the system clock */
   SystemClock_Config();
-
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-
-  /* USER CODE BEGIN 2 */
-
+  MX_CRC_Init();
+  spi_init();
+/*  spi_send_U8(0xAA);
+  spi_send_U8(0x10);*/
+   /* USER CODE BEGIN 2 */
+  GUI_Init();
+  WM_SetCreateFlags(WM_CF_MEMDEV);
+         GUI_CURSOR_Show();
+         GUI_CURSOR_Select(&GUI_CursorCrossL);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -116,7 +123,7 @@ int main(void)
  osThreadDef(task_10ms, Task_10ms, osPriorityNormal, 0, 128);
   TaskHandle_10ms = osThreadCreate(osThread(task_10ms), NULL);
 
-  osThreadDef(task_500ms, Task_500ms, osPriorityAboveNormal, 0, 512);
+  osThreadDef(task_500ms, Task_500ms, osPriorityAboveNormal, 0, 1024);
   TaskHandle_500ms = osThreadCreate(osThread(task_500ms), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -196,7 +203,9 @@ void Task_500ms(void const *argument)
         const portTickType xDelay = 300 / portTICK_RATE_MS;
         uint8_t internCounter=0;
         char buffer[10]= {0};
-        GUITask();
+
+
+         GUITask();
         //GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
@@ -269,7 +278,23 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler */ 
 }
+/* CRC init function */
+static void MX_CRC_Init(void)
+{
 
+  hcrc.Instance = CRC;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* Enable CRC */
+  SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_CRCEN);
+
+}
+void GUI_X_Unlock(){}
+void GUI_X_Lock(){}
+uint32_t GUI_X_GetTaskId(){}
+void GUI_X_InitOS(){}
 #ifdef USE_FULL_ASSERT
 
 /**

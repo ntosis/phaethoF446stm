@@ -64,6 +64,7 @@ void MX_GPIO_Init(void)
    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
 
 }
+
 /** System Clock Configuration
 */
 void SystemClock_Config(void)
