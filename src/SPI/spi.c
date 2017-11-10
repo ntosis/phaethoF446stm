@@ -67,7 +67,7 @@ void spi_init()
   /*##-1- Configure the SPI peripheral #######################################*/
   /* Set the SPI parameters */
   SpiHandle.Instance               = SPIx; //SPI1
-  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
   SpiHandle.Init.CLKPhase          = 0;
   SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
@@ -113,7 +113,7 @@ void spi_send_U8(uint8_t data) {
     /*send 8 bits*/
     *((__IO uint8_t *)&SPI1->DR) = data;
     /* wait until RXNE flag is set */
-    if(__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_RXNE))
+    if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2) != HAL_OK)
      {
       return;
      }
@@ -136,19 +136,20 @@ void spi_send_U16(uint16_t data) {
 
     /*send the high 8 bits*/
     *((__IO uint8_t *)&SPI1->DR) = temp[0];
-    /* wait until RXNE flag is set */
 
-    if(__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_RXNE))
+    /* wait until RXNE flag is set */
+    if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2) != HAL_OK)
      {
       return;
      }
+
      /* send the low 8 bits */
      *((__IO uint8_t *)&SPI1->DR) = temp[1];
 
      /*Wait until RXNE flag is set */
-     if(__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_RXNE))
+     if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2) != HAL_OK)
      {
-     return;
+      return;
      }
      /* Disable SPE */
      SPI1->CR1 &= ~SPI_CR1_SPE;
@@ -191,7 +192,7 @@ void set_spi_high_speed(SPI_HandleTypeDef *hspi)
     SPI1->CR1 &= ~SPI_CR1_SPE;
 
     /* Set high Speed*/
-    hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+    hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
 
     /* Update register */
     hspi->Instance->CR1 = (hspi->Init.Mode | hspi->Init.Direction | hspi->Init.DataSize |
@@ -206,7 +207,7 @@ void set_spi_low_speed(SPI_HandleTypeDef *hspi)
     SPI1->CR1 &= ~SPI_CR1_SPE;
 
     /* set low speed*/
-    hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+    hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
 
     /* Update register */
     hspi->Instance->CR1 = (hspi->Init.Mode | hspi->Init.Direction | hspi->Init.DataSize |
@@ -217,6 +218,85 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
   /* Turn LED2 on: Transfer in transmission/reception process is correct */
   //BSP_LED_On(LED2);
+}
+
+HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(struct __SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout)
+{
+  uint32_t tickstart = 0;
+
+  /* Get tick */
+  tickstart = HAL_GetTick();
+
+  /* Wait until flag is set */
+  if(Status == RESET)
+  {
+    while(__HAL_SPI_GET_FLAG(hspi, Flag) == RESET)
+    {
+      if(Timeout != HAL_MAX_DELAY)
+      {
+        if((Timeout == 0) || ((HAL_GetTick() - tickstart ) > Timeout))
+        {
+          /* Disable the SPI and reset the CRC: the CRC value should be cleared
+             on both master and slave sides in order to resynchronize the master
+             and slave for their respective CRC calculation */
+
+          /* Disable TXE, RXNE and ERR interrupts for the interrupt process */
+          __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+
+          /* Disable SPI peripheral */
+          __HAL_SPI_DISABLE(hspi);
+
+          /* Reset CRC Calculation */
+          if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
+          {
+            SPI_RESET_CRC(hspi);
+          }
+
+          hspi->State= HAL_SPI_STATE_READY;
+
+          /* Process Unlocked */
+          __HAL_UNLOCK(hspi);
+
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+  }
+  else
+  {
+    while(__HAL_SPI_GET_FLAG(hspi, Flag) != RESET)
+    {
+      if(Timeout != HAL_MAX_DELAY)
+      {
+        if((Timeout == 0) || ((HAL_GetTick() - tickstart ) > Timeout))
+        {
+          /* Disable the SPI and reset the CRC: the CRC value should be cleared
+             on both master and slave sides in order to resynchronize the master
+             and slave for their respective CRC calculation */
+
+          /* Disable TXE, RXNE and ERR interrupts for the interrupt process */
+          __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+
+          /* Disable SPI peripheral */
+          __HAL_SPI_DISABLE(hspi);
+
+          /* Reset CRC Calculation */
+          if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
+          {
+            SPI_RESET_CRC(hspi);
+          }
+
+          hspi->State= HAL_SPI_STATE_READY;
+
+          /* Process Unlocked */
+          __HAL_UNLOCK(hspi);
+
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+  }
+  return HAL_OK;
 }
 
 /**

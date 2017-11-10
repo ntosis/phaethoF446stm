@@ -103,7 +103,8 @@ int main(void)
          GUI_CURSOR_Show();
          GUI_CURSOR_Select(&GUI_CursorCrossL);
   /* USER CODE END 2 */
-
+  test();
+  test2();
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
@@ -262,6 +263,27 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 /* USER CODE BEGIN Callback 1 */
 
 /* USER CODE END Callback 1 */
+}
+void test(void){
+    volatile char i = 0;
+
+    i=5;
+
+    i++;
+
+    if(i<5) { return; }
+    else if(i>5) { HAL_Delay(100); }
+}
+
+void test2(void){
+    volatile char i;
+
+    i=1;
+
+    i++;
+
+    if(i<1) { return; }
+    else if(i>1) { HAL_Delay(100); }
 }
 
 /**

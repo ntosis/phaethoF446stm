@@ -611,7 +611,8 @@ void TFTWriteCmd(const uint16_t command)
 	/* low RS to send command */
 	GPIOC->ODR &=  ~((1<<8)&PORTAMSK_RS_W_R);
 
-	spi_send_U16(command);
+	//spi_send_U16(command);
+	HAL_SPI_Transmit(&SpiHandle,(uint8_t *)&command,1,500);
 	/*reset busy flag*/
 	spi_TFT_busy_flag = 0;
 
@@ -622,6 +623,9 @@ void TFTWriteCmd(const uint16_t command)
 
 void TFTWriteData(const uint16_t data)
 {
+    /* local variable */
+    uint8_t buffer_tmp[2]= {0};
+
     /* wait for busy flag to be false */
     while(spi_TFT_busy_flag);
 
@@ -637,8 +641,16 @@ void TFTWriteData(const uint16_t data)
     /* HIGH RS to send Data */
     GPIOC->ODR |=  ((1<<8)&PORTAMSK_RS_W_R);
 
+    /* split the data */
+    /* high bits*/
+    buffer_tmp[0] = (uint8_t)((data>>8));
+    /* low bits */
+    buffer_tmp[1] = (uint8_t)((data));
+
     /* send spi stream */
-    spi_send_U16(data);
+    HAL_SPI_Transmit(&SpiHandle,&buffer_tmp,2,500);
+
+    //spi_send_U16(data);
 
     /*reset busy flag*/
     spi_TFT_busy_flag = 0;
@@ -1391,7 +1403,7 @@ void ili9341_ini_adafruit() {
 
 void ili9481_initGit(void) {
     /* SLP_OUT - Sleep out */
-    TFTWriteCmd(0x11);
+	TFTWriteCmd(0x11);
     	HAL_Delay(50);
     	/* Power setting */
     	TFTWriteCmd(0xD0); TFTWriteData(0x07); TFTWriteData(0x42); TFTWriteData(0x18);

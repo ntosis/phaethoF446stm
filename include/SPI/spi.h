@@ -92,6 +92,8 @@ uint8_t spi_send_read_U8(uint8_t *send,uint8_t *receive);
 
 void set_spi_high_speed(SPI_HandleTypeDef *hspi);
 void set_spi_low_speed(SPI_HandleTypeDef *hspi);
+HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(struct __SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
+
 
 extern bool spi_TFT_busy_flag;
 extern void spi_init();
