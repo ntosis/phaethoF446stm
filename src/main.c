@@ -36,6 +36,7 @@
 #include "cmsis_os.h"
 #include "FRAMEWIN.h"
 #include "GUI.h"
+#include "spi.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -95,13 +96,39 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   spi_init();
+   __USART2_CLK_ENABLE();
+
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_InitStructure.Pin = GPIO_PIN_2;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Alternate = GPIO_AF7_USART2;
+    GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    GPIO_InitStructure.Pin = GPIO_PIN_3;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    huart2.Instance        = USART2;
+    huart2.Init.BaudRate   = 115200;
+    huart2.Init.WordLength = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits   = UART_STOPBITS_1;
+    huart2.Init.Parity     = UART_PARITY_NONE;
+    huart2.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    huart2.Init.Mode       = UART_MODE_TX_RX;
+
+    if (HAL_UART_Init(&huart2) != HAL_OK)
+        asm("bkpt 255");
 /*  spi_send_U8(0xAA);
   spi_send_U8(0x10);*/
    /* USER CODE BEGIN 2 */
+  GUI_TOUCH_X_MeasureX();
   GUI_Init();
   WM_SetCreateFlags(WM_CF_MEMDEV);
-         GUI_CURSOR_Show();
-         GUI_CURSOR_Select(&GUI_CursorCrossL);
+  GUI_CURSOR_Show();
+  GUI_CURSOR_Select(&GUI_CursorCrossL);
   /* USER CODE END 2 */
   test();
   test2();
@@ -185,13 +212,14 @@ void Task_10ms(void const *argument)
 
     		while(1) {
     			 //readEncoder();
-    			if(1){//(!__READ(TOUCH_INT))&&(!spi_TFT_busy_flag)){
-    			    testcnt++;
-    		  	 // Touch Screen
-    			//GUI_TOUCH_Exec();
-    		    }
-    		    else {
-    			//GUI_TOUCH_StoreState(-1,-1);
+    			if((!__READ(TOUCH_INT))&&(!spi_TFT_busy_flag)){
+    			   // testcnt++;
+    			    // Touch Screen
+    			    GUI_TOUCH_Exec();
+    			}
+    			else {
+    			    //do nothing
+    			    //GUI_TOUCH_StoreState(-1,-1);
     		    }
     			  // Wait for the next cycle.
     		vTaskDelayUntil( &xLastWakeTime, xDelay );
