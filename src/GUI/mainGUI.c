@@ -201,7 +201,7 @@ static void _cbText(WM_MESSAGE * pMsg) {
     //
     // Draw Text
     //
-  /* //f446 migration  GUI_SetFont(&GUI_Font16_ASCII);
+    GUI_SetFont(&GUI_Font16_ASCII);
     GUI_SetColor(ColorText);
     GUI_SetTextAlign(GUI_TA_LEFT | GUI_TA_VCENTER);
     GUI_GotoXY(Rect.x0, Rect.y0+20);
@@ -223,7 +223,7 @@ static void _cbText(WM_MESSAGE * pMsg) {
     GUI_GotoXY(Rect.x0, Rect.y0+100);
     GUI_DispString("Temp.");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+100);
-            GUI_DispDecSpace(Temperature, 2);
+            GUI_DispDecSpace(20, 2);//f446 migration replace 20 with Temperature
     GUI_GotoXY(Rect.x0, Rect.y0+120);
     GUI_DispString("Time");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+120);
@@ -261,7 +261,7 @@ static void _cbBMPButton(WM_MESSAGE * pMsg) {
   switch (pMsg->MsgId) {
   case WM_PAINT:
     WM_GetClientRectEx(pMsg->hWin, &Rect);
-    if(1){ //f446 migration  stateONOFF){
+    if(stateONOFF){
       GUI_DrawBitmap(&bmp_button_green, 0, 0);
     } else {
       GUI_DrawBitmap(&bmp_button_red, 0, 0);
@@ -280,7 +280,7 @@ static void _cbAutoManButton(WM_MESSAGE * pMsg) {
   switch (pMsg->MsgId) {
   case WM_PAINT:
     WM_GetClientRectEx(pMsg->hWin, &Rect);
-    if(1){ //f446 migration  stateAUTOMAN){
+    if(stateAUTOMAN){
       GUI_DrawBitmap(&bmp_button_auto_green, 0, 0);
     } else {
       GUI_DrawBitmap(&bmp_button_auto_black, 0, 0);
@@ -359,7 +359,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
   case WM_TIMER:
       //Refresh Text
       WM_InvalidateWindow(WM_GetDialogItem(pMsg->hWin, ID_TEXT_0));
-      //WM_RestartTimer(pMsg->Data.v, 1000);
+      WM_RestartTimer(pMsg->Data.v, 1000);
     break;
   case WM_NOTIFY_PARENT:
     Id    = WM_GetId(pMsg->hWinSrc);
@@ -370,9 +370,9 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
 
-		//f446 migration stateONOFF^=1;
-		//f446 migration stateOfProgram ^=1; //Move from Ctrl_Subsystem line 91, change it in Matlab
-	  	//f446 migration clicked=stateONOFF;
+		stateONOFF^=1;
+		stateOfProgram ^=1; //Move from Ctrl_Subsystem line 91, change it in Matlab
+	  	clicked=stateONOFF;
 
         // USER END
         break;
@@ -388,10 +388,10 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
-	  if(1){//f446 migration stateOfProgram) {
-	  //f446 migration stateAUTOMAN ^=1;
-	  //f446 migration selectProgram ^=1;
-	  //f446 migration doubleClicked=stateAUTOMAN;
+	  if(stateOfProgram) {
+	  stateAUTOMAN ^=1;
+	  selectProgram ^=1;
+	  doubleClicked=stateAUTOMAN;
 	  }
         // USER END
         break;
@@ -422,7 +422,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       case WM_NOTIFICATION_VALUE_CHANGED:
         // USER START (Optionally insert code for reacting on notification message)
 	  hItem = WM_GetDialogItem(pMsg->hWin, Id);
-	  //f446 migration SOLLtemperature = SPINBOX_GetValue(hItem);
+	  SOLLtemperature = SPINBOX_GetValue(hItem);
         // USER END
         break;
       // USER START (Optionally insert additional code for further notification handling)

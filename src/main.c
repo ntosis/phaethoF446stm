@@ -206,7 +206,7 @@ void Task_300ms(void const *argument)
 void Task_10ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 10 / portTICK_RATE_MS;
+        const portTickType xDelay = 5 / portTICK_RATE_MS;
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
 

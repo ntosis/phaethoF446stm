@@ -192,7 +192,7 @@ void set_spi_high_speed(SPI_HandleTypeDef *hspi)
     SPI1->CR1 &= ~SPI_CR1_SPE;
 
     /* Set high Speed*/
-    hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+    hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
 
     /* Update register */
     hspi->Instance->CR1 = (hspi->Init.Mode | hspi->Init.Direction | hspi->Init.DataSize |
