@@ -96,6 +96,8 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   spi_init();
+  rtc_init();
+
    __USART2_CLK_ENABLE();
 
     GPIO_InitTypeDef GPIO_InitStructure;

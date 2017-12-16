@@ -24,6 +24,7 @@
 #include "DIALOG.h"
 #include "mainGUI.h"
 #include "rtc.h"
+#include "spi.h"
 /*********************************************************************
 *
 *       Defines
@@ -164,6 +165,7 @@ static const void * _GetImageById(U32 Id, U32 * pSize) {
 *
 */
 static void _cbText(WM_MESSAGE * pMsg) {
+    char buff[20];
   GUI_RECT Rect;
   GUI_COLOR ColorFrame;
   GUI_COLOR Color;
@@ -227,8 +229,11 @@ static void _cbText(WM_MESSAGE * pMsg) {
     GUI_GotoXY(Rect.x0, Rect.y0+120);
     GUI_DispString("Time");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+120);
-	    //Show_RTC_Calendar();
-	    GUI_DispString("f446");//aShowTime);*/
+	    Show_RTC_Calendar();
+	    GUI_DispDecSpace(seconds, 4);
+
+
+
 
     //
     // Display temperature with a bigger font

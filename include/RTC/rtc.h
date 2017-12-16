@@ -9,6 +9,9 @@
 #define RTC_H_
 
 #include "hardware_init.h"
+#include "spi.h"
+
+extern  uint8_t seconds;
 /*
 #include "stm32l1xx_ll_rtc.h"
 #include "stm32l1xx_ll_rcc.h"
@@ -73,4 +76,15 @@ uint32_t WaitForSynchro_RTC(void);
 void     Show_RTC_Calendar(void);
 bool getTime(const char *str);
 bool getDate(const char *str);
+void Show_RTC_Calendar(void);
+
+/**
+  * @brief  Enable RTC
+  * @rmtoll CSR         RTCEN         LL_RCC_EnableRTC
+  * @retval None
+  */
+__STATIC_INLINE void LL_RCC_EnableRTC(void)
+{
+  SET_BIT(RCC->BDCR, RCC_BDCR_RTCEN);
+}
 #endif /* RTC_H_ */
