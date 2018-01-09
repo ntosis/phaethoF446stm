@@ -6,7 +6,12 @@
  */
 #include "rtc.h"
 
-    uint8_t seconds=0;
+uint8_t seconds=0;
+struct timeStruct_t tm;
+const char *monthName = {
+ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+ "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
 
 void rtc_init(void) {
 
@@ -32,9 +37,12 @@ void rtc_init(void) {
   {
     Error_Handler();
   }
-  sTime.Hours = 1;
-  sTime.Minutes = 1;
-  sTime.Seconds = 1;
+  getDate(__DATE__);
+  getTime(__TIME__);
+
+  sTime.Hours = tm.Hour;
+  sTime.Minutes = tm.Minute;
+  sTime.Seconds = tm.Second;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sTime.StoreOperation = RTC_STOREOPERATION_RESET;
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
@@ -43,9 +51,9 @@ void rtc_init(void) {
   }
 
   sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 1;
-  sDate.Year = 2017;
+  sDate.Month = tm.Month;
+  sDate.Date = tm.Day;
+  sDate.Year = tm.Year;
 
   if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
   {
@@ -64,9 +72,38 @@ void Show_RTC_Calendar(void) {
    hrtc.Instance = RTC;
    HAL_RTC_GetTime(&hrtc,&sTime,FORMAT_BIN);
    HAL_RTC_GetDate(&hrtc,&sDate,FORMAT_BIN);
-   seconds = sTime.Seconds;
+   tm.Second = sTime.Seconds;
+   tm.Hour = sTime.Hours;
+   tm.Minute = sTime.Minutes;
    /*sprintf(buff,"sec: %d\r\n",(uint32_t)(hrtc.Instance->TR));
    HAL_UART_Transmit(&huart2,buff,sizeof(buff),5);*/
+}
+bool getTime(const char *str)
+{
+  int Hour, Min, Sec;
+
+  if (sscanf(str, "%d:%d:%d", &Hour, &Min, &Sec) != 3) return false;
+  tm.Hour = Hour;
+  tm.Minute = Min;
+  tm.Second = Sec;
+  return true;
+}
+
+bool getDate(const char *str)
+{
+  char Month[12];
+  int Day, Year;
+  uint8_t monthIndex;
+
+  if (sscanf(str, "%s %d %d", Month, &Day, &Year) != 3) return false;
+  for (monthIndex = 0; monthIndex < 12; monthIndex++) {
+    if (strcmp(Month, monthName[monthIndex]) == 0) break;
+  }
+  if (monthIndex >= 12) return false;
+  tm.Day = Day;
+  tm.Month = monthIndex + 1;
+  tm.Year = CalendarYrToTm(Year);
+  return true;
 }
 /*RTC_HandleTypeDef hrtc;
 

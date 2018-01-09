@@ -96,7 +96,15 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   spi_init();
-  rtc_init();
+      /* Check the init flag in the back up register  */
+  if(!(RTC->BKP0R)&1)
+      {
+
+      rtc_init();
+      /* set the init flag to back up register*/
+      (RTC->BKP0R)= 1;
+
+      }
 
    __USART2_CLK_ENABLE();
 

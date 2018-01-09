@@ -25,6 +25,8 @@
 #include "mainGUI.h"
 #include "rtc.h"
 #include "spi.h"
+
+WM_HWIN hWin;
 /*********************************************************************
 *
 *       Defines
@@ -37,7 +39,7 @@
 #define ID_SPINBOX_0  (GUI_ID_USER + 0x03)
 #define ID_TEXT_0  (GUI_ID_USER + 0x04)
 #define ID_IMAGE_0  (GUI_ID_USER + 0x05)
-
+#define ID_EDIT_0 (GUI_ID_USER + 0x06)
 #define ID_IMAGE_0_IMAGE_0  0x00
 
 // USER START (Optionally insert additional defines)
@@ -127,7 +129,7 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
   { WINDOW_CreateIndirect, "Window", ID_WINDOW_0, 0, 0, 320, 240, 0, 0x0, 0 },
   { BUTTON_CreateIndirect, "OnOff", ID_BUTTON_0, 32, 10, 60, 60, 0, 0x0, 0 },
   { BUTTON_CreateIndirect, "AutoMan", ID_BUTTON_1, 32, 80, 60, 60, 0, 0x0, 0 },
-  { SPINBOX_CreateIndirect, "Spinbox", ID_SPINBOX_0, 32, 164, 100, 39, 0, 0x0, 0 },
+  { EDIT_CreateIndirect, "Edit", ID_EDIT_0, 32, 164, 100, 39, 0, 0x0, 0 },
   { TEXT_CreateIndirect, "Text", ID_TEXT_0, 155, 76, 160, 160, 0, 0x0, 0 },
   { IMAGE_CreateIndirect, "Led", ID_IMAGE_0, 102, 95, 30, 30, 0, 0, 0 },
   // USER START (Optionally insert additional widgets)
@@ -224,13 +226,14 @@ static void _cbText(WM_MESSAGE * pMsg) {
             GUI_DispDecSpace(inputValue_Coolg, 2);
     GUI_GotoXY(Rect.x0, Rect.y0+100);
     GUI_DispString("Temp.");
-	    GUI_GotoXY(Rect.x0+80, Rect.y0+100);
-            GUI_DispDecSpace(20, 2);//f446 migration replace 20 with Temperature
+    GUI_GotoXY(Rect.x0+80, Rect.y0+100);
+    GUI_DispDecSpace(20, 2);//f446 migration replace 20 with Temperature
     GUI_GotoXY(Rect.x0, Rect.y0+120);
     GUI_DispString("Time");
-	    GUI_GotoXY(Rect.x0+80, Rect.y0+120);
-	    Show_RTC_Calendar();
-	    GUI_DispDecSpace(seconds, 4);
+    GUI_GotoXY(Rect.x0+80, Rect.y0+120);
+    Show_RTC_Calendar();
+    sprintf(buff,"%d:%d:%d",tm.Hour,tm.Minute,tm.Second);
+    GUI_DispString(buff);
 
 
 
@@ -311,6 +314,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
   static WM_HTIMER hTimer;
 
   // USER START (Optionally insert additional variables)
+
   // USER END
 
   switch (pMsg->MsgId) {
@@ -319,10 +323,16 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     hItem = pMsg->hWin;
     //Init Timer
     hTimer = WM_CreateTimer(hItem, 0, 1000, 0);
+
     //
     // Initialization of 'Window'
     //
     WINDOW_SetBkColor(hItem, GUI_MAKE_COLOR(0x00040404));
+    //
+    // Initialization of 'Edit'
+    //
+    hItem = WM_GetDialogItem(pMsg->hWin, ID_EDIT_0);
+    EDIT_SetText(hItem, "");
     //
     // Initialization of 'OnOff'
     //
@@ -361,6 +371,12 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     WM_SetCallback(hItem, _cbBMPButton);
     // USER END
     break;
+    case WM_TOUCH:
+    //
+    // If we touch somewhere on the screnn the keyboard gets hidden
+    //
+    WM_HideWindow(_hKeyboard);
+    break;
   case WM_TIMER:
       //Refresh Text
       WM_InvalidateWindow(WM_GetDialogItem(pMsg->hWin, ID_TEXT_0));
@@ -378,7 +394,6 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 		stateONOFF^=1;
 		stateOfProgram ^=1; //Move from Ctrl_Subsystem line 91, change it in Matlab
 	  	clicked=stateONOFF;
-
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -406,6 +421,16 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
         break;
       // USER START (Optionally insert additional code for further notification handling)
       // USER END
+      }
+      break;
+      case ID_EDIT_0: // Notifications sent by 'Edit'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        //
+        // After a click inside the edit widget, we show the keyboard
+        //
+        WM_ShowWindow(_hKeyboard);
+        break;
       }
       break;
     case ID_SPINBOX_0: // Notifications sent by 'Spinbox'
@@ -459,7 +484,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 */
 WM_HWIN CreateWindow(void);
 WM_HWIN CreateWindow(void) {
-  WM_HWIN hWin;
+
   hWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), _cbDialog, WM_HBKWIN, 0, 0);
 
   return hWin;
@@ -480,6 +505,8 @@ void GUITask(void) {
     //GUI_Init();
     //GUI_DrawBitmap(&bmp_button_pressed, 45, 20);
     CreateWindow();
+    createKeyboard();
+
 
     //while(1){ GUI_Exec();};
 }

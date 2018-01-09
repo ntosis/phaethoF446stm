@@ -17,7 +17,12 @@ extern  uint8_t seconds;
 #include "stm32l1xx_ll_rcc.h"
 #include "stm32l1xx_ll_pwr.h"
 */
-
+const char *monthName;
+struct timeStruct_t {
+int Hour,Minute,Second,Day,Year;
+int Month;
+} ;
+extern struct timeStruct_t tm;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Oscillator time-out values */
@@ -62,10 +67,7 @@ extern uint8_t aShowDate[50];
 uint32_t Timeout = 0; /* Variable used for Timeout management */
 #endif /* USE_TIMEOUT */
 
-struct timeStruct_t {
-int Hour,Minute,Second,Day,Year;
-int Month;
-} ;
+
 /* Private function prototypes -----------------------------------------------*/
 void     Configure_RTC_Clock(void);
 void     Configure_RTC(void);
