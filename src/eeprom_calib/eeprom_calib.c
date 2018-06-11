@@ -1,21 +1,31 @@
-#include <eeprom_calib.h>
-
+#include "eeprom_calib.h"
+#include "eeprom_em.h"
 // Create variable in EEPROM with initial values
-volatile const CAL_PARAM CALinEE = { 1,1.56,0.001,800,1.56,0.001,800,7,1} ;
+const CAL_PARAM CALinEE = {0x8888, 1,1.56,0.001,800,1.56,0.001,800,7,1,0} ;
 // Create pointer for the calibration parameters
-volatile const CAL_PARAM  *p=&CALinEE;
-// Load data from EEPROM
-void LoadCALvars(void) {
+const CAL_PARAM  *p=&CALinEE;
+CAL_PARAM CALinRAM;
 
-	//eeprom_read_block(&CALinRAM, &CALinEE, sizeof(CAL_PARAM));
-}
-// Save data to EEPROM
-void SaveCALvars(void) {
+void initCAL(void) {
 
-	//eeprom_write_block(&CALinRAM, &CALinEE, sizeof(CAL_PARAM));
+    CAL_PARAM tmp;
+
+    EE_ReadBlockInEEm((uint16_t*)&tmp,sizeof(CAL_PARAM),0x8888);
+
+    if(tmp.statusOfThisBlock==0x01) {
+
+	memcpy(&CALinRAM,&tmp,sizeof(CAL_PARAM));
+
+    }
+    else {
+
+	memcpy(&CALinRAM,&CALinEE,sizeof(CAL_PARAM));
+
+    }
+
+
 }
-/*! \brief P, I and D parameter values
-*
-* The K_P, K_I and K_D values (P, I and D gains)
-* need to be modified to adapt to the application at hand
-*/
+
+
+
+

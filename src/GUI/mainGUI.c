@@ -25,8 +25,10 @@
 #include "mainGUI.h"
 #include "rtc.h"
 #include "spi.h"
+#include "Ctrl_Subsystem.h"
 
 WM_HWIN hWin;
+struct AMessage *rxMessage;
 /*********************************************************************
 *
 *       Defines
@@ -39,9 +41,10 @@ WM_HWIN hWin;
 #define ID_SPINBOX_0  (GUI_ID_USER + 0x03)
 #define ID_TEXT_0  (GUI_ID_USER + 0x04)
 #define ID_IMAGE_0  (GUI_ID_USER + 0x05)
-#define ID_EDIT_0 (GUI_ID_USER + 0x06)
+#define ID_EDIT_0 (GUI_ID_USER + 0x88)
 #define ID_IMAGE_0_IMAGE_0  0x00
 
+int id_edit_0 = (GUI_ID_USER + 0x88);
 // USER START (Optionally insert additional defines)
 //
 // Colors
@@ -126,7 +129,7 @@ static GUI_CONST_STORAGE GUI_FONT * pFont32p     = &GUI_Font32_ASCII;
 *       _aDialogCreate
 */
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
-  { WINDOW_CreateIndirect, "Window", ID_WINDOW_0, 0, 0, 320, 240, 0, 0x0, 0 },
+  { WINDOW_CreateIndirect, "Window", ID_WINDOW_0, 0, 0, 480, 320, 0, 0x0, 0 },
   { BUTTON_CreateIndirect, "OnOff", ID_BUTTON_0, 32, 10, 60, 60, 0, 0x0, 0 },
   { BUTTON_CreateIndirect, "AutoMan", ID_BUTTON_1, 32, 80, 60, 60, 0, 0x0, 0 },
   { EDIT_CreateIndirect, "Edit", ID_EDIT_0, 32, 164, 100, 39, 0, 0x0, 0 },
@@ -167,6 +170,15 @@ static const void * _GetImageById(U32 Id, U32 * pSize) {
 *
 */
 static void _cbText(WM_MESSAGE * pMsg) {
+    int8_t tmep;
+	  struct AMessage *pxRxedMessage;
+	  if(xQueueReceive( xQueueCtrlSubsystem, &( pxRxedMessage ), ( TickType_t ) 10 )) {
+	       tmep = pxRxedMessage->SOLLtemperature;
+	  }
+	  else {
+	      tmep=126;
+	  }
+
     char buff[20];
   GUI_RECT Rect;
   GUI_COLOR ColorFrame;
@@ -227,7 +239,7 @@ static void _cbText(WM_MESSAGE * pMsg) {
     GUI_GotoXY(Rect.x0, Rect.y0+100);
     GUI_DispString("Temp.");
     GUI_GotoXY(Rect.x0+80, Rect.y0+100);
-    GUI_DispDecSpace(20, 2);//f446 migration replace 20 with Temperature
+    GUI_DispDecSpace(tmep, 4);//f446 migration replace 20 with Temperature
     GUI_GotoXY(Rect.x0, Rect.y0+120);
     GUI_DispString("Time");
     GUI_GotoXY(Rect.x0+80, Rect.y0+120);
@@ -322,7 +334,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
   case WM_INIT_DIALOG:
     hItem = pMsg->hWin;
     //Init Timer
-    hTimer = WM_CreateTimer(hItem, 0, 1000, 0);
+    hTimer = WM_CreateTimer(hItem, 0, 2000, 0);
 
     //
     // Initialization of 'Window'
@@ -380,7 +392,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
   case WM_TIMER:
       //Refresh Text
       WM_InvalidateWindow(WM_GetDialogItem(pMsg->hWin, ID_TEXT_0));
-      WM_RestartTimer(pMsg->Data.v, 1000);
+      WM_RestartTimer(pMsg->Data.v, 2000);
     break;
   case WM_NOTIFY_PARENT:
     Id    = WM_GetId(pMsg->hWinSrc);
@@ -452,7 +464,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       case WM_NOTIFICATION_VALUE_CHANGED:
         // USER START (Optionally insert code for reacting on notification message)
 	  hItem = WM_GetDialogItem(pMsg->hWin, Id);
-	  SOLLtemperature = SPINBOX_GetValue(hItem);
+
         // USER END
         break;
       // USER START (Optionally insert additional code for further notification handling)

@@ -1,7 +1,9 @@
 
 #include "DIALOG.h"
 #include "string.h"
+#include "spi.h"
 extern WM_HWIN hWin;
+extern int id_edit_0;
 /*********************************************************************
 *
 *       Defines
@@ -43,7 +45,7 @@ extern WM_HWIN hWin;
 #define ID_BUTTON_28           (GUI_ID_USER + 0x1D)  // Space
 
 #define ID_WINDOW_1            (GUI_ID_USER + 0x20)
-#define ID_EDIT_0              (GUI_ID_USER + 0x21)
+#define ID_EDIT_0              (GUI_ID_USER + 0x88)
 
 #define BUTTON_X_SIZE           30
 #define BUTTON_Y_SIZE           30
@@ -63,6 +65,9 @@ extern WM_HWIN hWin;
 
 #define COLOR_BUTTON_BK_0       GUI_MAKE_COLOR(0x613600)
 #define COLOR_BUTTON_BK_1       GUI_MAKE_COLOR(0x613600)
+
+
+
 
 /*********************************************************************
 *
@@ -197,6 +202,7 @@ static void _cbKeybord(WM_MESSAGE * pMsg) {
   char     acTextSrc[100 + 1];
   char     acTextDest[100 + 1];
   int      Len;
+  uint8_t uart_buffer[50]={0};
 
   switch (pMsg->MsgId) {
   case WM_INIT_DIALOG:
@@ -224,6 +230,8 @@ static void _cbKeybord(WM_MESSAGE * pMsg) {
     //
     Id    = WM_GetId(pMsg->hWinSrc);
     NCode = pMsg->Data.v;
+    sprintf(uart_buffer,"NCode: %d ",NCode);
+    HAL_UART_Transmit(&huart2,uart_buffer,sizeof(uart_buffer),5);
     switch(NCode) {
     case WM_NOTIFICATION_RELEASED:
       //
@@ -233,7 +241,7 @@ static void _cbKeybord(WM_MESSAGE * pMsg) {
       //
       // With the handle of the parent window we can get the edit handle by its ID
       //
-      hItem   = WM_GetDialogItem(hParent, ID_EDIT_0);
+      hItem   = WM_GetDialogItem(hParent, id_edit_0);
       //
       // Set Focus on the edit widget to make sure it gets the key input
       //

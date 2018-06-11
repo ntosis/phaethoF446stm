@@ -37,12 +37,19 @@
 #include "FRAMEWIN.h"
 #include "GUI.h"
 #include "spi.h"
-/* USER CODE BEGIN Includes */
+#include "eeprom_em.h"
+#include "hdi.h"
+#include "queue.h"
+#include "Ctrl_Subsystem.h"
+#include "profil.h"
 
+/* USER CODE BEGIN Includes */
+char Samples[5000]={0};
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 CRC_HandleTypeDef hcrc;
+TIM_HandleTypeDef htim3;
 
 osThreadId defaultTaskHandle;
 osThreadId blinkTaskHandle;
@@ -67,7 +74,7 @@ void Task_10ms(void const *argument);
 void Task_100ms(void const *argument);
 void Task_300ms(void const *argument);
 void Task_500ms(void const *argument);
-
+static void MX_TIM3_Init(void);
 
 
 /* USER CODE BEGIN PFP */
@@ -96,6 +103,12 @@ int main(void)
   MX_GPIO_Init();
   MX_CRC_Init();
   spi_init();
+  MX_TIM3_Init();
+  xQueueCtrlSubsystem = xQueueCreate( 10, sizeof( struct AMessage * ) );
+  int volatile status = EE_Init();
+  EE_Init();
+  initCAL();
+  profil (Samples, 5000,0x8005000, 32768);
       /* Check the init flag in the back up register  */
   if(!(RTC->BKP0R)&1)
       {
@@ -134,14 +147,12 @@ int main(void)
 /*  spi_send_U8(0xAA);
   spi_send_U8(0x10);*/
    /* USER CODE BEGIN 2 */
-  GUI_TOUCH_X_MeasureX();
-  GUI_Init();
-  WM_SetCreateFlags(WM_CF_MEMDEV);
-  GUI_CURSOR_Show();
-  GUI_CURSOR_Select(&GUI_CursorCrossL);
+  //GUI_TOUCH_X_MeasureX();
+  //GUI_Init();
+  //WM_SetCreateFlags(WM_CF_MEMDEV);
+  //GUI_CURSOR_Show();
+  //GUI_CURSOR_Select(&GUI_CursorCrossL);
   /* USER CODE END 2 */
-  test();
-  test2();
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
@@ -201,13 +212,15 @@ int main(void)
 void Task_300ms(void const *argument)
 {
     portTickType xLastWakeTime;
-    const portTickType xDelay = 300 / portTICK_RATE_MS;
+    const portTickType xDelay = 30 / portTICK_RATE_MS;
     // Initialise the xLastWakeTime variable with the current time.
          xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
 
 		        //actualTemperature();
 			//readButton(xTaskGetTickCount ());
+		    ProfTest();
+		    HAL_Delay(100);
 			  // Wait for the next cycle.
 			vTaskDelayUntil( &xLastWakeTime, xDelay );
 		}
@@ -216,16 +229,17 @@ void Task_300ms(void const *argument)
 void Task_10ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 5 / portTICK_RATE_MS;
+        const portTickType xDelay = 10 / portTICK_RATE_MS;
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
 
     		while(1) {
+    		    SamplePCounter();
     			 //readEncoder();
     			if((!__READ(TOUCH_INT))&&(!spi_TFT_busy_flag)){
     			   // testcnt++;
     			    // Touch Screen
-    			    GUI_TOUCH_Exec();
+    			    //GUI_TOUCH_Exec();
     			}
     			else {
     			    //do nothing
@@ -239,12 +253,12 @@ void Task_10ms(void const *argument)
 void Task_500ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 300 / portTICK_RATE_MS;
+        const portTickType xDelay = 500 / portTICK_RATE_MS;
         uint8_t internCounter=0;
         char buffer[10]= {0};
 
 
-         GUITask();
+         //GUITask();
         //GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
@@ -257,26 +271,26 @@ void Task_500ms(void const *argument)
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
-
+    			   //ProfTest();
     			 //checkStruct();
     			 //updateSollTemperature();
     			 //LEDfunction();
     			// volatile CAL_PARAM *gp = &CALinEE;
     			 //volatile uint8_t ii =  oneLevelSystem_C;
     			 //Ctrl_Subsystem_step();
-    			 GUI_Exec();
+    			 //GUI_Exec();
     			 //run every 1 second
-    			  //if(internCounter==2) {
+    			  if(internCounter==200) {
 
     				      //Ctrl_Subsystem_step();
     				      /*##-3- Display the updated Time and Date ################################*/
     				     // LED_Blinking((__LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetSecond(RTC)))*10);
 
     				//      internCounter=0;
+    					  //_exit();
+    				     }
 
-    				  //     }
-
-    			//internCounter++;
+    			internCounter++;
 
     			  // Wait for the next cycle.
     			vTaskDelayUntil( &xLastWakeTime, xDelay );
@@ -301,27 +315,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 /* USER CODE BEGIN Callback 1 */
 
 /* USER CODE END Callback 1 */
-}
-void test(void){
-    volatile char i = 0;
-
-    i=5;
-
-    i++;
-
-    if(i<5) { return; }
-    else if(i>5) { HAL_Delay(100); }
-}
-
-void test2(void){
-    volatile char i;
-
-    i=1;
-
-    i++;
-
-    if(i<1) { return; }
-    else if(i>1) { HAL_Delay(100); }
 }
 
 /**
@@ -349,6 +342,38 @@ static void MX_CRC_Init(void)
   }
   /* Enable CRC */
   SET_BIT(RCC->AHB1ENR, RCC_AHB1ENR_CRCEN);
+
+}
+/* TIM3 init function */
+static void MX_TIM3_Init(void)
+{
+
+  TIM_SlaveConfigTypeDef sSlaveConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 90;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 0xffff;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_EXTERNAL1;
+  sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+  if (HAL_TIM_SlaveConfigSynchronization(&htim3, &sSlaveConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_ENABLE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
 }
 void GUI_X_Unlock(){}

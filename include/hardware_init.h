@@ -33,6 +33,7 @@ typedef enum { false, true } bool;
 #define __TOGGLE(pin)         _TOGGLE(GPIO,pin)
 #define __READ(pin)           _GET(GPIO,pin)
 
+
 // Set Pins
 #define LCD_ChipSelect B,0
 #define LCD_CMD A,4
@@ -57,5 +58,7 @@ typedef enum { false, true } bool;
 #define TEST_PIN A,9
 
 void MX_GPIO_Init(void);
-
+struct test {
+    unsigned char a,b,c,d,e,f,g:2,h;
+};
 #endif /* HARDWARE_INIT_H_ */

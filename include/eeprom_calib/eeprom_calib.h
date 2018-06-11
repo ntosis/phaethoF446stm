@@ -7,9 +7,13 @@
 
 #ifndef EEPROM_CALIB_H_
 #define EEPROM_CALIB_H_
+
+#define _start 0x800C000
 #include <hardware_init.h>
+#include <string.h>
 // Create structure
 typedef struct {
+    uint16_t virtualAddress;
     uint8_t  oneLevelSystem_C;
     float K_P_Htng;
     float K_I_Htng;
@@ -18,15 +22,18 @@ typedef struct {
     float K_I_Coolg;
     float K_D_Coolg;
     uint8_t smartCnt_C;
-    uint8_t debugInfosFlag_C:1;
+    uint8_t debugInfosFlag_C;
+    uint8_t statusOfThisBlock;
 } CAL_PARAM;
 
-void LoadCALvars(void);
-void SaveCALvars(void);
+void initCAL(void);
+void checkForaValidBlockInEEm(void);
+void copyBlockFromEEmtoRam(void);
+void copyInitCALtoRam(void);
 
 extern CAL_PARAM CALinRAM;
-extern CAL_PARAM volatile const CALinEE;
-extern CAL_PARAM volatile const *p;
+extern CAL_PARAM  const CALinEE;
+extern CAL_PARAM  const *p;
 
 #define K_P_Htng (p->K_P_Htng)
 #define K_I_Htng (p->K_I_Htng)

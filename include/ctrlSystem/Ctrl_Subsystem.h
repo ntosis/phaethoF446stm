@@ -10,11 +10,21 @@
 #include <eeprom_calib.h>
 #include "Ctrl_Subsystem_private.h"
 #include "hardware_init.h"
+#include "queue.h"
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetStopRequested
 # define rtmGetStopRequested(rtm)      ((void*) 0)
 #endif
+/* User Code */
 
+extern QueueHandle_t xQueueCtrlSubsystem;
+
+struct AMessage
+ {
+    int8_t SOLLtemperature;
+ } xMessageCtrlSubsystem;
+
+ /* User Code */
 /* Block states (auto storage) for system '<Root>' */
 typedef struct {
   boolean_T UnitDelay1_DSTATE;         /* '<S2>/Unit Delay1' */
