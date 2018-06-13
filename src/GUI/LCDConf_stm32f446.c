@@ -78,14 +78,13 @@ Purpose     : Display controller configuration (single layer)
   *
   ******************************************************************************
   */
-#include "GUI.h"
+#include "guiLibs/GUI.h"
+#include "guiLibs/GUIDRV_FlexColor.h"
 #include "LCDConf_stm32f446.h"
-#include <stddef.h>
-#include <stdlib.h>
 #include "hardware_init.h"
 #include "ili9481.h"
-//#include "adc.h"
-#include "GUIDRV_FlexColor.h"
+#include <stddef.h>
+#include <stdlib.h>
 /*********************************************************************
 *
 *       Layer configuration (to be modified)

@@ -1,4 +1,4 @@
-#include "touch.h"
+#include <Touch/touch.h>
 
 void GUI_TOUCH_X_ActivateX(void) {} //empty
 void GUI_TOUCH_X_ActivateY(void) {} //empty

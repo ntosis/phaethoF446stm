@@ -31,17 +31,15 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include "hardware_init.h"
-#include "stm32f4xx_hal.h"
-#include "cmsis_os.h"
-#include "FRAMEWIN.h"
-#include "GUI.h"
-#include "spi.h"
-#include "eeprom_em.h"
-#include "hdi.h"
-#include "queue.h"
 #include "Ctrl_Subsystem.h"
-#include "profil.h"
+#include "guiLibs/FRAMEWIN.h"
+#include "guiLibs/GUI.h"
+#include "cmsis_os.h"
+#include "eeprom_em.h"
+#include "hardware_init.h"
+#include "spi.h"
+#include "stm32f4xx_hal.h"
+#include "queue.h"
 
 /* USER CODE BEGIN Includes */
 char Samples[5000]={0};
@@ -105,10 +103,9 @@ int main(void)
   spi_init();
   MX_TIM3_Init();
   xQueueCtrlSubsystem = xQueueCreate( 10, sizeof( struct AMessage * ) );
-  int volatile status = EE_Init();
   EE_Init();
   initCAL();
-  profil (Samples, 5000,0x8005000, 32768);
+
       /* Check the init flag in the back up register  */
   if(!(RTC->BKP0R)&1)
       {
@@ -212,15 +209,14 @@ int main(void)
 void Task_300ms(void const *argument)
 {
     portTickType xLastWakeTime;
-    const portTickType xDelay = 30 / portTICK_RATE_MS;
+    const portTickType xDelay = 300 / portTICK_RATE_MS;
     // Initialise the xLastWakeTime variable with the current time.
          xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
 
 		        //actualTemperature();
 			//readButton(xTaskGetTickCount ());
-		    ProfTest();
-		    HAL_Delay(100);
+
 			  // Wait for the next cycle.
 			vTaskDelayUntil( &xLastWakeTime, xDelay );
 		}
@@ -234,7 +230,7 @@ void Task_10ms(void const *argument)
              xLastWakeTime = xTaskGetTickCount ();
 
     		while(1) {
-    		    SamplePCounter();
+
     			 //readEncoder();
     			if((!__READ(TOUCH_INT))&&(!spi_TFT_busy_flag)){
     			   // testcnt++;
@@ -258,8 +254,8 @@ void Task_500ms(void const *argument)
         char buffer[10]= {0};
 
 
-         //GUITask();
-        //GUI_Clear();
+         GUITask();
+         GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
               GUI_CURSOR_Select(&GUI_CursorCrossL);
@@ -271,14 +267,14 @@ void Task_500ms(void const *argument)
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
-    			   //ProfTest();
-    			 //checkStruct();
-    			 //updateSollTemperature();
-    			 //LEDfunction();
+
+    			 checkStruct();
+    			 updateSollTemperature();
+
     			// volatile CAL_PARAM *gp = &CALinEE;
     			 //volatile uint8_t ii =  oneLevelSystem_C;
-    			 //Ctrl_Subsystem_step();
-    			 //GUI_Exec();
+    			 Ctrl_Subsystem_step();
+    			 GUI_Exec();
     			 //run every 1 second
     			  if(internCounter==200) {
 

@@ -1,7 +1,7 @@
 
-#include "DIALOG.h"
-#include "string.h"
+#include <guiLibs/DIALOG.h>
 #include "spi.h"
+#include "string.h"
 extern WM_HWIN hWin;
 extern int id_edit_0;
 /*********************************************************************

@@ -4,9 +4,9 @@
  *  Created on: Jun 15, 2017
  *      Author: unix
  */
+#include <guiLibs/GUI.h>
 #include <stdlib.h>
 
-#include "GUI.h"
 
 #ifndef GUI_CONST_STORAGE
   #define GUI_CONST_STORAGE const

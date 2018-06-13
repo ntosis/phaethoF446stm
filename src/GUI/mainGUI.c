@@ -21,11 +21,11 @@
 // USER START (Optionally insert additional includes)
 // USER END
 
-#include "DIALOG.h"
-#include "mainGUI.h"
+#include "Ctrl_Subsystem.h"
+#include "guiLibs/DIALOG.h"
 #include "rtc.h"
 #include "spi.h"
-#include "Ctrl_Subsystem.h"
+#include "mainGUI.h"
 
 WM_HWIN hWin;
 struct AMessage *rxMessage;
