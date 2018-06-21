@@ -20,7 +20,6 @@ uint16_t returnDebugInfo();
 extern boolean_T stateOfProgram; /* '<S5>/XOR1' */
 extern bool selectProgram; /* '<S2>/XOR1' */
 extern bool autoProgramTimeEnabled;
-extern int8_t SOLLtemperature;
 //extern ExtY_Ctrl_Subsystem Ctrl_Subsystem_Y; /* '<S1>/Logical Operator' */
 
 

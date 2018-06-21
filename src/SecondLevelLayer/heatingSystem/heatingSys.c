@@ -1,9 +1,7 @@
+#include "QueuesStructs.h"
 #include "heatingSys.h"
+#include "heatingSysQ.h"
 
-bool autoProgramSelected=false;
-bool manualProgramSelected=false;
-bool autoProgramTimeEnabled=false;
-bool stateOfHeatingSystem=false;
 // On/Off time Array
 // Sunday->Saturday ontime/offtime
   const uint16_t onTimesAM[7]  =
@@ -24,11 +22,11 @@ bool stateOfHeatingSystem=false;
 
 void updateSollTemperature() {
 
-  	 if (TurnDetected&&stateOfProgram) {
+  	 if (TurnDetected/*&&stateOfProgram*/) {
 
   		 smartCntFlag=1;
 
-  		 SOLLtemperature=SOLLtemperature+(up);
+  		 /*SOLLtemperature=SOLLtemperature+(up);*/
 
   		     if(up<0) {
   			 smartCntDown=smartCntDown+abs(up);
@@ -38,7 +36,8 @@ void updateSollTemperature() {
   		 //showSolltemp();
   		 up=0; 			//reset up counter
   	 	 }
-       TurnDetected = false;    // do NOT repeat IF loop until new rotation detected
+
+  	 resetFlag(&TurnDetected,false);    // do NOT repeat IF loop until new rotation detected
 
   }
 /*

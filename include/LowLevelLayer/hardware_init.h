@@ -10,7 +10,7 @@
 
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
-
+#include "rtwtypes.h"
 /** \def EEMEM_1
     Attribute expression causing a variable to be allocated within the
     .eeprom1 section.	*/

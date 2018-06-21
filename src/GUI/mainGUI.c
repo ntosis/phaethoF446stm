@@ -109,11 +109,6 @@ extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_auto_black;
 static int stateONOFF=0;
 static int stateAUTOMAN=0;
 extern bool clicked;
-extern bool doubleClicked;
-extern int8_t SOLLtemperature;
-extern uint8_t Temperature;
-extern bool stateOfProgram;
-extern bool selectProgram;
 extern int16_t inputValue_Htng;
 extern int16_t inputValue_Coolg;
 //
@@ -171,13 +166,14 @@ static const void * _GetImageById(U32 Id, U32 * pSize) {
 */
 static void _cbText(WM_MESSAGE * pMsg) {
     int8_t tmep;
-	  struct AMessage *pxRxedMessage;
+	 /* struct AMessage *pxRxedMessage;
 	  if(xQueueReceive( xQueueCtrlSubsystem, &( pxRxedMessage ), ( TickType_t ) 10 )) {
 	       tmep = pxRxedMessage->SOLLtemperature;
 	  }
 	  else {
 	      tmep=126;
 	  }
+	  */
 
     char buff[20];
   GUI_RECT Rect;
@@ -223,11 +219,11 @@ static void _cbText(WM_MESSAGE * pMsg) {
     GUI_GotoXY(Rect.x0, Rect.y0+20);
     GUI_DispString("On/Off");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+20);
-	    GUI_DispDecSpace(stateOfProgram, 1);
+	    GUI_DispDecSpace(/*stateOfProgram*/1, 1);
     GUI_GotoXY(Rect.x0, Rect.y0+40);
     GUI_DispString("Man/Auto");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+40);
-            GUI_DispDecSpace(selectProgram, 2);
+            GUI_DispDecSpace(/*selectProgram*/1, 2);
     GUI_GotoXY(Rect.x0, Rect.y0+60);
     GUI_DispString("PID_H");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+60);
@@ -404,7 +400,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
         // USER START (Optionally insert code for reacting on notification message)
 
 		stateONOFF^=1;
-		stateOfProgram ^=1; //Move from Ctrl_Subsystem line 91, change it in Matlab
+		/*stateOfProgram ^=1;*/ //Move from Ctrl_Subsystem line 91, change it in Matlab
 	  	clicked=stateONOFF;
         // USER END
         break;
@@ -420,11 +416,11 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
-	  if(stateOfProgram) {
+	  /*if(stateOfProgram) {
 	  stateAUTOMAN ^=1;
 	  selectProgram ^=1;
 	  doubleClicked=stateAUTOMAN;
-	  }
+	  }*/
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:

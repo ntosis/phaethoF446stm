@@ -1,17 +1,11 @@
+#include "QueuesStructs.h"
 #include "Ctrl_Subsystem.h"
+#include "ctrlSystemQ.h"
+
 /* Exported block signals */
-boolean_T isCoolingOn;                 /* '<S5>/Compare' */
-boolean_T selectProgram;               /* '<S2>/XOR1' */
-boolean_T stateOfProgram;              /* '<S4>/XOR1' */
-boolean_T isHeatingOn;                 /* '<S3>/NOT' */
-int8_t SOLLtemperature = 20;
-uint8_t Temperature;
-int16_t inputValue_Htng;
-int16_t inputValue_Coolg;
 struct PID_DATA pidData_Htng;
 struct PID_DATA pidData_Coolg;
 /* Exported data definition */
-QueueHandle_t xQueueCtrlSubsystem;
 /* Const memory section */
 /* Definition for custom storage class: Const */
 const boolean_T setOffSecondLvlinManual = 0;
@@ -78,11 +72,6 @@ void Ctrl_Subsystem_step(void)
   int8_T rtb_Solltemperature_intern;
   boolean_T rtb_Merge;
   boolean_T rtb_Merge1;
-	  struct AMessage *txMessage;
-	  xMessageCtrlSubsystem.SOLLtemperature++;
-	  txMessage = & xMessageCtrlSubsystem;
-	  xQueueSend( xQueueCtrlSubsystem, ( void * ) &txMessage, ( TickType_t ) 10 );
-
   /* RelationalOperator: '<S5>/Compare' incorporates:
    *  Constant: '<S5>/Constant'
    *  Inport: '<Root>/In2'

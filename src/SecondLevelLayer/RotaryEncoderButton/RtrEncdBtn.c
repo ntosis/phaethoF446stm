@@ -1,5 +1,5 @@
+#include <RtrEncdBtn/RtrEncdBtn.h>
 #include <stdlib.h>
-#include "RtrEncdBtn.h"
 //#include "heatingSys.h"
 //#include <eeprom_calib.h>
 
@@ -139,8 +139,9 @@ void smartChangeBtwnHeatCool() {
 	else if(smartCntDown>smartCnt_C) {
 
 		if(SOLLtemperature > 0)
-
-					{SOLLtemperature= -22;}
+		{
+		    SOLLtemperature= -22;
+		}
 
 	}
 }
@@ -152,4 +153,7 @@ void resetSmartCnt() {
 	smartCntUp=0;
 	smartCntDown=0;
 	}
+}
+void resetFlag(uint8_t *flag, uint8_t state) {
+    *flag=state;
 }

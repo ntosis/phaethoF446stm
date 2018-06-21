@@ -7,23 +7,17 @@
 #endif                                 /* Ctrl_Subsystem_COMMON_INCLUDES_ */
 
 #include "pid.h"
-#include <eeprom_calib.h>
+#include "eeprom_calib.h"
 #include "Ctrl_Subsystem_private.h"
 #include "hardware_init.h"
-#include "queue.h"
+
 /* Macros for accessing real-time model data structure */
 #ifndef rtmGetStopRequested
 # define rtmGetStopRequested(rtm)      ((void*) 0)
 #endif
 /* User Code */
-
-extern QueueHandle_t xQueueCtrlSubsystem;
-
-struct AMessage
- {
-    int8_t SOLLtemperature;
- } xMessageCtrlSubsystem;
-
+static int16_t inputValue_Htng;
+static int16_t inputValue_Coolg;
  /* User Code */
 /* Block states (auto storage) for system '<Root>' */
 typedef struct {
@@ -53,10 +47,6 @@ extern ExtY_Ctrl_Subsystem Ctrl_Subsystem_Y;
  * these signals and export their symbols.
  *
  */
-extern boolean_T isCoolingOn;          /* '<S5>/Compare' */
-extern boolean_T selectProgram;        /* '<S2>/XOR1' */
-extern boolean_T stateOfProgram;       /* '<S4>/XOR1' */
-extern boolean_T isHeatingOn;          /* '<S3>/NOT' */
 /* Model entry point functions */
 extern void Ctrl_Subsystem_initialize(void);
 extern void Ctrl_Subsystem_step(void);

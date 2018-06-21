@@ -148,12 +148,6 @@
  */
 #define rtcP_IntegralGain_Gain_no5q    (66)
 
-/* Imported (extern) block signals */
-extern uint8_T Temperature;            /* '<Root>/In1' */
-extern int8_T SOLLtemperature;         /* '<Root>/In2' */
-extern boolean_T doubleClicked;        /* '<Root>/In3' */
-extern boolean_T clicked;              /* '<Root>/In4' */
-extern boolean_T autoProgramTimeEnabled;/* '<Root>/In5' */
 extern void Ctrl_Subsystem_HeatingPID2levels(int16_t rtu_In1, boolean_T
   *rty_Out1, boolean_T *rty_Out2);
 extern void Ctrl_Subsystem_HeatingPID1level(int16_t rtu_In1, boolean_T *rty_Out1,

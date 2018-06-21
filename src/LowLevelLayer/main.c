@@ -102,9 +102,12 @@ int main(void)
   MX_CRC_Init();
   spi_init();
   MX_TIM3_Init();
-  xQueueCtrlSubsystem = xQueueCreate( 10, sizeof( struct AMessage * ) );
+  //xQueueCtrlSubsystem = xQueueCreate( 10, sizeof( struct AMessage * ) );
   EE_Init();
   initCAL();
+
+  initctrlSystemQueue();
+  initheatingSysQueue();
 
       /* Check the init flag in the back up register  */
   if(!(RTC->BKP0R)&1)
@@ -145,7 +148,7 @@ int main(void)
   spi_send_U8(0x10);*/
    /* USER CODE BEGIN 2 */
   //GUI_TOUCH_X_MeasureX();
-  //GUI_Init();
+  GUI_Init();
   //WM_SetCreateFlags(WM_CF_MEMDEV);
   //GUI_CURSOR_Show();
   //GUI_CURSOR_Select(&GUI_CursorCrossL);
@@ -273,7 +276,10 @@ void Task_500ms(void const *argument)
 
     			// volatile CAL_PARAM *gp = &CALinEE;
     			 //volatile uint8_t ii =  oneLevelSystem_C;
+    			 heatingSysQueueSend();
+    			 ctrlSystemQueueRead();
     			 Ctrl_Subsystem_step();
+    			 ctrlSystemQueueSend();
     			 GUI_Exec();
     			 //run every 1 second
     			  if(internCounter==200) {
