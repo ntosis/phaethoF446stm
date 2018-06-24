@@ -1,19 +1,10 @@
-#include <RtrEncdBtn/RtrEncdBtn.h>
-#include <stdlib.h>
-//#include "heatingSys.h"
-//#include <eeprom_calib.h>
+#include "QueuesStructs.h"
+#include "RtrEncdBtn.h"
+#include "RtrEncdBtnQ.h"
 
-bool clicked=false;
-bool doubleClicked=false;
-bool onStateofProgram=false;
-uint8_t holdCnt=0;
-//step between Heating/Cooling
-uint8_t smartCntUp=0;
-uint8_t smartCntDown=0;
-uint8_t smartCntFlag=0;
-volatile uint8_t signalButton = 0;
-volatile int8_t up = 0;
-volatile bool TurnDetected = false;
+#include <stdlib.h>
+#include "heatingSys.h"
+//#include <eeprom_calib.h>
 
 void initRtrEncoder() {
 
@@ -71,7 +62,7 @@ void readButton(const portTickType now) {
     //bit masking for the 7,6 th bits.
     if ((stateOfSwitch&0b11)==1) {
     ArrayOfClicks[pnt].timeOfClick= now;
-    ArrayOfClicks[pnt].clicked=true;
+    ArrayOfClicks[pnt].st_clicked=true;
     pnt++;
          //
     if(pnt==5) pnt=0;
@@ -88,8 +79,8 @@ void checkStruct() {
  doubleClicked=false;
   for(int i=0;i<5;i++) {
          if(i<4){
-         if(ArrayOfClicks[i].clicked==true)  {
-             if(ArrayOfClicks[i+1].clicked==true) {
+         if(ArrayOfClicks[i].st_clicked==true)  {
+             if(ArrayOfClicks[i+1].st_clicked==true) {
             	int16_t dt= (ArrayOfClicks[i+1].timeOfClick)-(ArrayOfClicks[i].timeOfClick);
                if(dt<700) {
             	   doubleClicked=true;
@@ -103,8 +94,8 @@ void checkStruct() {
          }
        }
        else if(i==4) {
-         if(ArrayOfClicks[i].clicked==true)  {
-        	if(ArrayOfClicks[0].clicked==true) {
+         if(ArrayOfClicks[i].st_clicked==true)  {
+        	if(ArrayOfClicks[0].st_clicked==true) {
                int16_t dt= (ArrayOfClicks[0].timeOfClick)-(ArrayOfClicks[i].timeOfClick);
                dt=abs(dt);
                if(dt<700) {
@@ -120,7 +111,7 @@ void checkStruct() {
        }
   }
     for(int i=0;i<5;i++) {
-      ArrayOfClicks[i].clicked=false;
+      ArrayOfClicks[i].st_clicked=false;
       ArrayOfClicks[i].timeOfClick=0;
     }
 }
@@ -132,18 +123,23 @@ void smartChangeBtwnHeatCool() {
 	    {
 
 		if(SOLLtemperature<0)
+		{
 
-			{SOLLtemperature= 22;}
-	}
+		    setSOLLTemperature(22);
+		}
 
-	else if(smartCntDown>smartCnt_C) {
+	    }
+
+	else if(smartCntDown>smartCnt_C)
+
+	    {
 
 		if(SOLLtemperature > 0)
 		{
-		    SOLLtemperature= -22;
+		    setSOLLTemperature(-22);
 		}
 
-	}
+	     }
 }
 void resetSmartCnt() {
 	if(smartCntFlag) {

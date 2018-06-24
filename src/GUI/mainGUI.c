@@ -19,16 +19,22 @@
 */
 
 // USER START (Optionally insert additional includes)
-// USER END
-
-#include "Ctrl_Subsystem.h"
+#include "mainGUI.h"
 #include "guiLibs/DIALOG.h"
+
+#include "QueuesStructs.h"
+#include "GUIQ.h"
 #include "rtc.h"
 #include "spi.h"
-#include "mainGUI.h"
+// USER END
+
+
+
+
+
 
 WM_HWIN hWin;
-struct AMessage *rxMessage;
+
 /*********************************************************************
 *
 *       Defines
@@ -165,8 +171,8 @@ static const void * _GetImageById(U32 Id, U32 * pSize) {
 *
 */
 static void _cbText(WM_MESSAGE * pMsg) {
-    int8_t tmep;
-	 /* struct AMessage *pxRxedMessage;
+    /*int8_t tmep;
+	  struct AMessage *pxRxedMessage;
 	  if(xQueueReceive( xQueueCtrlSubsystem, &( pxRxedMessage ), ( TickType_t ) 10 )) {
 	       tmep = pxRxedMessage->SOLLtemperature;
 	  }
@@ -219,23 +225,23 @@ static void _cbText(WM_MESSAGE * pMsg) {
     GUI_GotoXY(Rect.x0, Rect.y0+20);
     GUI_DispString("On/Off");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+20);
-	    GUI_DispDecSpace(/*stateOfProgram*/1, 1);
+	    GUI_DispDecSpace(stateOfProgram, 1);
     GUI_GotoXY(Rect.x0, Rect.y0+40);
     GUI_DispString("Man/Auto");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+40);
-            GUI_DispDecSpace(/*selectProgram*/1, 2);
+            GUI_DispDecSpace(selectProgram, 2);
     GUI_GotoXY(Rect.x0, Rect.y0+60);
     GUI_DispString("PID_H");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+60);
-            GUI_DispDecSpace(inputValue_Htng, 2);
+            GUI_DispDecSpace(/*inputValue_Htng*/1, 2);
     GUI_GotoXY(Rect.x0, Rect.y0+80);
     GUI_DispString("PID_C");
 	    GUI_GotoXY(Rect.x0+80, Rect.y0+80);
-            GUI_DispDecSpace(inputValue_Coolg, 2);
+            GUI_DispDecSpace(/*inputValue_Coolg*/1, 2);
     GUI_GotoXY(Rect.x0, Rect.y0+100);
     GUI_DispString("Temp.");
     GUI_GotoXY(Rect.x0+80, Rect.y0+100);
-    GUI_DispDecSpace(tmep, 4);//f446 migration replace 20 with Temperature
+    GUI_DispDecSpace(SOLLtemperature, 4);//f446 migration replace 20 with Temperature
     GUI_GotoXY(Rect.x0, Rect.y0+120);
     GUI_DispString("Time");
     GUI_GotoXY(Rect.x0+80, Rect.y0+120);
@@ -249,7 +255,7 @@ static void _cbText(WM_MESSAGE * pMsg) {
     //
     // Display temperature with a bigger font
     //
-    int Index = ((SOLLtemperature - MIN_TEMPERATURE) * (GUI_COUNTOF(_aGradient) - 1)) / (MAX_TEMPERATURE - MIN_TEMPERATURE);
+    int Index = ((/*SOLLtemperature*/1 - MIN_TEMPERATURE) * (GUI_COUNTOF(_aGradient) - 1)) / (MAX_TEMPERATURE - MIN_TEMPERATURE);
     Color = _aGradient[Index];
    // GUI_SetColor(Color);
     //GUI_SetBkColor(Color);
@@ -381,7 +387,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     break;
     case WM_TOUCH:
     //
-    // If we touch somewhere on the screnn the keyboard gets hidden
+    // If we touch somewhere on the screen the keyboard gets hidden
     //
     WM_HideWindow(_hKeyboard);
     break;
@@ -401,7 +407,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 
 		stateONOFF^=1;
 		/*stateOfProgram ^=1;*/ //Move from Ctrl_Subsystem line 91, change it in Matlab
-	  	clicked=stateONOFF;
+	  	/*clicked=stateONOFF;*/
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:

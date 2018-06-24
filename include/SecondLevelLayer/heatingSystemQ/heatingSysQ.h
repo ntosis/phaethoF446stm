@@ -14,6 +14,7 @@
 
 void heatingSysQueueSend(void);
 void initheatingSysQueue(void);
+void heatingSysQueueRead(void);
 
 /* declare global Queue instance*/
 extern QueueHandle_t xQueueHeatingSys;
@@ -32,5 +33,13 @@ extern QueueHandle_t xQueueHeatingSys;
 #define up xMessageHeatingSys.up
 #define Temperature xMessageHeatingSys.Temperature
 
+/*imported signals*/
+extern GUIQ RxedMessage;
+extern RtrEncdBtnQ RxedMessageRtr;
+
+#define stateOfProgram RxedMessage.stateOfProgram
+#define selectProgram RxedMessage.selectProgram
+
+#define TurnDetected RxedMessageRtr.TurnDetected
 
 #endif /* HEATINGSYSQ_H_ */

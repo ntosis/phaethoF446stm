@@ -11,13 +11,6 @@
  * The ports for the pins are defined in hardware_init.h
  * The D2 D3 D4 are used for the rotary encoder
  */
-extern volatile uint8_t signalButton;
-extern volatile bool TurnDetected ;
-extern volatile int8_t up;
-extern int8_t SOLLtemperature;
-extern uint8_t smartCntUp;
-extern uint8_t smartCntDown;
-extern uint8_t smartCntFlag;
 
 void initRtrEncoder();
 void readButton(const portTickType now);
@@ -27,18 +20,15 @@ void checkStruct();
 void resetSmartCnt(void);
 uint8_t returnStateofProgram();
 void smartChangeBtwnHeatCool(void);
-
+void resetFlag(uint8_t *flag, uint8_t state);
 
 
 typedef struct {
 portTickType timeOfClick;
-bool clicked;
+bool st_clicked;
 } click;
 
 static click ArrayOfClicks[5];
-extern bool clicked;
-extern bool doubleClicked;
-extern bool onStateofProgram;
 
 extern volatile uint8_t signalButton; // not to be optimized
 static volatile uint8_t pnt=0;

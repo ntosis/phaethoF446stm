@@ -108,6 +108,8 @@ int main(void)
 
   initctrlSystemQueue();
   initheatingSysQueue();
+  initRtrEncdBtnQueue();
+  initGUIQueue();
 
       /* Check the init flag in the back up register  */
   if(!(RTC->BKP0R)&1)
@@ -271,18 +273,22 @@ void Task_500ms(void const *argument)
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
 
+    			 heatingSysQueueRead();
+    			 rtrEncdBtnQueueRead();
+    			 ctrlSystemQueueRead();
+    			 GUIQueueRead();
+
     			 checkStruct();
     			 updateSollTemperature();
-
-    			// volatile CAL_PARAM *gp = &CALinEE;
-    			 //volatile uint8_t ii =  oneLevelSystem_C;
-    			 heatingSysQueueSend();
-    			 ctrlSystemQueueRead();
     			 Ctrl_Subsystem_step();
-    			 ctrlSystemQueueSend();
     			 GUI_Exec();
+
+    			 ctrlSystemQueueSend();
+    			 heatingSysQueueSend();
+    			 GUIQSend();
+
     			 //run every 1 second
-    			  if(internCounter==200) {
+    			  if(internCounter==2) {
 
     				      //Ctrl_Subsystem_step();
     				      /*##-3- Display the updated Time and Date ################################*/

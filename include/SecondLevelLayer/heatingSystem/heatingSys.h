@@ -10,18 +10,11 @@
 
 #include "hardware_init.h"
 //#include "ds1307.h"
-#include "RtrEncdBtn.h"
-#include "Ctrl_Subsystem.h"
 void updateSollTemperature(void);
 void autoProgram();
 void LEDfunction(void);
 void initLEDs(void);
 uint16_t returnDebugInfo();
-extern boolean_T stateOfProgram; /* '<S5>/XOR1' */
-extern bool selectProgram; /* '<S2>/XOR1' */
-extern bool autoProgramTimeEnabled;
-//extern ExtY_Ctrl_Subsystem Ctrl_Subsystem_Y; /* '<S1>/Logical Operator' */
-
-
+void setSOLLTemperature(int16_t grad);
 
 #endif /* HEATINGSYS_H_ */

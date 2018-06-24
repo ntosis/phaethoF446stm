@@ -48,7 +48,19 @@ typedef struct {
     bool TurnDetected;
  }RtrEncdBtnQ ;
 
+typedef struct {
+    bool stateOfProgram;
+    bool selectProgram;
+} GUIQ;
+
 extern HeatingSysQ xMessageHeatingSys;
 extern ctrlSystemQueue xMessageCtrlSubsystem;
+extern RtrEncdBtnQ xMessageRtrEncdBtn;
+extern GUIQ xMessageGUI;
+
+extern QueueHandle_t xQueueRtrEncdBtn;
+extern QueueHandle_t xQueueHeatingSys;
+extern QueueHandle_t xQueueCtrlSubsystem;
+extern QueueHandle_t xQueueGUI;
 
 #endif /* INCLUDE_QUEUESSTRUCTS_H_ */

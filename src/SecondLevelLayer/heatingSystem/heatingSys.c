@@ -2,6 +2,9 @@
 #include "heatingSys.h"
 #include "heatingSysQ.h"
 
+#include "Ctrl_Subsystem.h"
+
+
 // On/Off time Array
 // Sunday->Saturday ontime/offtime
   const uint16_t onTimesAM[7]  =
@@ -26,7 +29,7 @@ void updateSollTemperature() {
 
   		 smartCntFlag=1;
 
-  		 /*SOLLtemperature=SOLLtemperature+(up);*/
+  		 SOLLtemperature=SOLLtemperature+(up)+1;
 
   		     if(up<0) {
   			 smartCntDown=smartCntDown+abs(up);
@@ -40,6 +43,9 @@ void updateSollTemperature() {
   	 resetFlag(&TurnDetected,false);    // do NOT repeat IF loop until new rotation detected
 
   }
+void setSOLLTemperature(int16_t grad){
+    SOLLtemperature = grad;
+}
 /*
 void autoProgram() {
 
